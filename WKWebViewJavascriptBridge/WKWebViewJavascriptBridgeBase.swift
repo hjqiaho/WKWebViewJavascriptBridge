@@ -25,7 +25,7 @@ public class WKWebViewJavascriptBridgeBase: NSObject {
     var isLogEnable = false
     
     public typealias Callback = (_ responseData: Any?) -> Void
-    public typealias Handler = (_ parameters: Any?, _ callback: Callback?) -> Void
+    public typealias Handler = (_ parameters: [String: Any], _ callback: Callback?) -> Void
     public typealias Message = [String: Any]
     
     weak var delegate: WKWebViewJavascriptBridgeBaseDelegate?
@@ -89,7 +89,16 @@ public class WKWebViewJavascriptBridgeBase: NSObject {
                     log("NoHandlerException, No handler for message from JS: \(message)")
                     continue
                 }
-                handler(message["data"], callback)
+                var messageData = message["data"] ?? ""
+                var dataMap:[String : Any]
+                if messageData is [String:Any] {
+                    dataMap = messageData as? [String : Any] ?? [:]
+                }else if messageData is String {
+                    dataMap = ["value":messageData]
+                }else {
+                    dataMap = [:]
+                }
+                handler(dataMap, callback)
             }
         }
     }
