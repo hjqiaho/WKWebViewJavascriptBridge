@@ -94,9 +94,17 @@ public class WKWebViewJavascriptBridgeBase: NSObject {
                 if messageData is [String:Any] {
                     dataMap = messageData as? [String : Any] ?? [:]
                 }else if messageData is String {
-                    dataMap = ["value":messageData]
+                    do {
+                        if let jsonObject = try JSONSerialization.jsonObject(with: (messageData as! String).data(using: .utf8)!, options: []) as? [String: Any] {
+                            dataMap = jsonObject
+                        }else{
+                            dataMap = ["ylvalue":messageData]
+                        }
+                    } catch {
+                        dataMap = ["ylvalue":messageData]
+                    }
                 }else {
-                    dataMap = [:]
+                    dataMap = ["ylvalue":messageData]
                 }
                 handler(dataMap, callback)
             }
