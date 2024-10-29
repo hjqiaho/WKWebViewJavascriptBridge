@@ -25,7 +25,7 @@ public class WKWebViewJavascriptBridgeBase: NSObject {
     var isLogEnable = false
     
     public typealias Callback = (_ responseData: Any?) -> Void
-    public typealias Handler = (_ parameters: [String: Any], _ callback: Callback?) -> Void
+    public typealias Handler = (_ parameters: String, _ callback: Callback?) -> Void
     public typealias Message = [String: Any]
     
     weak var delegate: WKWebViewJavascriptBridgeBaseDelegate?
@@ -90,23 +90,23 @@ public class WKWebViewJavascriptBridgeBase: NSObject {
                     continue
                 }
                 var messageData = message["data"] ?? ""
-                var dataMap:[String : Any]
+                var dataString:String = ""
                 if messageData is [String:Any] {
-                    dataMap = messageData as? [String : Any] ?? [:]
-                }else if messageData is String {
                     do {
-                        if let jsonObject = try JSONSerialization.jsonObject(with: (messageData as! String).data(using: .utf8)!, options: []) as? [String: Any] {
-                            dataMap = jsonObject
-                        }else{
-                            dataMap = ["ylvalue":messageData]
-                        }
+                        let jsonData = try JSONSerialization.data(withJSONObject: messageData, options: [])
+                        dataString = String(data: jsonData, encoding: .utf8) ?? ""
                     } catch {
-                        dataMap = ["ylvalue":messageData]
                     }
+                }else if messageData is String {
+                    dataString = messageData as? String ?? ""
                 }else {
-                    dataMap = ["ylvalue":messageData]
+                    do {
+                        let jsonData = try JSONSerialization.data(withJSONObject: messageData, options: [])
+                        dataString = String(data: jsonData, encoding: .utf8) ?? ""
+                    } catch {
+                    }
                 }
-                handler(dataMap, callback)
+                handler(dataString, callback)
             }
         }
     }
