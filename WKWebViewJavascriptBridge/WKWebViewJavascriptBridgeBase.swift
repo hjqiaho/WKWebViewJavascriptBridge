@@ -92,19 +92,11 @@ public class WKWebViewJavascriptBridgeBase: NSObject {
                 var messageData = message["data"] ?? ""
                 var dataString:String = ""
                 if messageData is [String:Any] {
-                    do {
-                        let jsonData = try JSONSerialization.data(withJSONObject: messageData, options: [])
+                    if let jsonData = try? JSONSerialization.data(withJSONObject: messageData, options: []) {
                         dataString = String(data: jsonData, encoding: .utf8) ?? ""
-                    } catch {
                     }
                 }else if messageData is String {
                     dataString = messageData as? String ?? ""
-                }else {
-                    do {
-                        let jsonData = try JSONSerialization.data(withJSONObject: messageData, options: [])
-                        dataString = String(data: jsonData, encoding: .utf8) ?? ""
-                    } catch {
-                    }
                 }
                 handler(dataString, callback)
             }
